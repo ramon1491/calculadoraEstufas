@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Potencia de Estufa</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .tarjeta {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      padding: 36px;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      color: #1a202c;
+      margin-bottom: 8px;
+    }
+
+    .subtitulo {
+      font-size: 0.9rem;
+      color: #718096;
+      margin-bottom: 28px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: #2d3748;
+      background: #fff;
+      margin-bottom: 20px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: #4299e1;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #3182ce;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #2b6cb0;
+    }
+
+    .resultado {
+      margin-top: 28px;
+      background: #ebf8ff;
+      border: 1px solid #bee3f8;
+      border-radius: 10px;
+      padding: 20px;
+      display: none;
+    }
+
+    .resultado.visible {
+      display: block;
+    }
+
+    .dato {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2b6cb0;
+      margin-bottom: 4px;
+    }
+
+    .dato span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #4a5568;
+    }
+
+    .frase {
+      margin-top: 14px;
+      font-size: 1rem;
+      color: #2d3748;
+      font-weight: 600;
+    }
+
+    .nota {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #718096;
+    }
+
+    .error {
+      color: #e53e3e;
+      font-size: 0.85rem;
+      margin-top: -14px;
+      margin-bottom: 14px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="tarjeta">
+    <h1>Calculadora de Estufa</h1>
+    <p class="subtitulo">Estimá la potencia que necesitás para tu ambiente</p>
+
+    <label for="superficie">Superficie del ambiente (m²)</label>
+    <input type="number" id="superficie" placeholder="Ej: 20" min="1" />
+    <div class="error" id="error-superficie">Ingresá una superficie válida mayor a 0.</div>
+
+    <label for="altura">Altura del techo (metros)</label>
+    <input type="number" id="altura" placeholder="Por defecto: 2.5" min="1" step="0.1" />
+
+    <label for="aislacion">Nivel de aislación</label>
+    <select id="aislacion">
+      <option value="40">Buena (paredes bien aisladas, doble vidrio)</option>
+      <option value="50" selected>Normal (construcción estándar)</option>
+      <option value="60">Mala (paredes sin aislación, ventanas simples)</option>
+    </select>
+
+    <button onclick="calcular()">Calcular</button>
+
+    <div class="resultado" id="resultado">
+      <div class="dato" id="texto-kcal"></div>
+      <div class="dato" id="texto-watts"></div>
+      <div class="frase" id="texto-frase"></div>
+      <div class="nota">⚠️ Esta es una estimación aproximada. El resultado puede variar según factores como ventanas, orientación del ambiente y clima de la zona.</div>
+    </div>
+  </div>
+
+  <script>
+    function calcular() {
+      const superficieInput = document.getElementById('superficie');
+      const alturaInput = document.getElementById('altura');
+      const aislacion = parseInt(document.getElementById('aislacion').value);
+      const errorSuperficie = document.getElementById('error-superficie');
+
+      const superficie = parseFloat(superficieInput.value);
+      const altura = parseFloat(alturaInput.value) || 2.5;
+
+      // Validar superficie
+      if (!superficie || superficie <= 0) {
+        errorSuperficie.style.display = 'block';
+        document.getElementById('resultado').classList.remove('visible');
+        return;
+      }
+      errorSuperficie.style.display = 'none';
+
+      const volumen = superficie * altura;
+      const kcal = Math.round(volumen * aislacion);
+      const watts = Math.round(kcal * 1.163);
+
+      document.getElementById('texto-kcal').innerHTML = kcal.toLocaleString('es-AR') + ' <span>kcal/h</span>';
+      document.getElementById('texto-watts').innerHTML = watts.toLocaleString('es-AR') + ' <span>W</span>';
+      document.getElementById('texto-frase').textContent = 'Buscá una estufa de al menos ' + kcal.toLocaleString('es-AR') + ' kcal/h';
+
+      document.getElementById('resultado').classList.add('visible');
+    }
+
+    // Calcular también al presionar Enter
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') calcular();
+    });
+  </script>
+</body>
+</html>
